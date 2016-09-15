@@ -99,6 +99,7 @@ ad_parse(ad_value *v, const char* json){
 
 ad_type
 ad_get_type(const ad_value* v){
+	assert(v != NULL);
         return v->type;
 }
 
