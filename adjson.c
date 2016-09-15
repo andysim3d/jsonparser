@@ -1,6 +1,8 @@
 #include "adjson.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
+#include <stdio.h>
 typedef struct {
 	const char *json;
 }ad_context;
@@ -16,10 +18,12 @@ static void ad_parse_whitespace(ad_context* c){
 
 int 
 ad_parse_null(ad_context * c, ad_value *v){
+	int rc = 0;
 	EXPECT(c, 'n');
-	if (c->json[0] != 'u' || c->json[1] != 'l' || c->json[2] != 'l'){
-		return AD_PARSE_INVALID_VALUE;
-	}
+	rc = strncmp(c->json, "ull", 3);
+	if (rc != 0){
+                return AD_PARSE_INVALID_VALUE;
+        }
 	c->json += 3;
 	v->type = AD_NULL;
 	return AD_PARSE_OK;
@@ -28,9 +32,10 @@ ad_parse_null(ad_context * c, ad_value *v){
 int 
 ad_parse_true(ad_context *c, ad_value *v){
 	
+	int rc = 0;
 	EXPECT(c, 't');
-	
-        if (c->json[0] != 'r' || c->json[1] != 'u' || c->json[2] != 'e'){
+	rc = strncmp(c->json, "rue", 3);
+	if (rc != 0){
                 return AD_PARSE_INVALID_VALUE;
         }
         c->json += 3;
@@ -40,9 +45,11 @@ ad_parse_true(ad_context *c, ad_value *v){
 
 int
 ad_parse_false(ad_context *c, ad_value *v){
-	EXPECT(c, 'f');
 	
-        if (c->json[0] != 'a' || c->json[1] != 'l' || c->json[2] != 's' || c->json[3] == 'e'){
+	int rc = 0;
+	EXPECT(c, 'f');
+	rc =  strncmp(c->json, "alse", 4);
+	if (rc != 0){
                 return AD_PARSE_INVALID_VALUE;
         }
         c->json += 4;

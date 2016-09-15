@@ -27,8 +27,24 @@ static void test_parse_null(){
 
 }
 
+static void test_parse_true(){
+	ad_value v;
+	v.type = AD_TRUE;
+	EXPECT_EQ_INT(AD_PARSE_OK, ad_parse(&v, "true"));
+	EXPECT_EQ_INT(AD_TRUE, ad_get_type(&v));
+}
+
+static void test_parse_false(){
+	ad_value v;
+	v.type = AD_TRUE;
+	EXPECT_EQ_INT(AD_PARSE_OK, ad_parse(&v, "false "));
+	EXPECT_EQ_INT(AD_FALSE, ad_get_type(&v));
+}
+
 static void test_parse(){
 	test_parse_null();
+	test_parse_false();
+	test_parse_true();
 }
 
 int main(){
