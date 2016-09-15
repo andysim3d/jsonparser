@@ -1,0 +1,6 @@
+*.a
+*.o
+*.cmake
+adjson_test
+CMakeFiles/
+CMakeCache.txt
