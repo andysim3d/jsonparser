@@ -17,6 +17,20 @@ static void ad_parse_whitespace(ad_context* c){
 }
 
 int 
+ad_parse_next_sep(ad_context *c){
+	if(*c->json == '\0' || *c->json ==',' || *c->json ==':'){
+		return AD_PARSE_OK;
+	}
+	return AD_PARSE_ROOT_NOT_SINGULAR;
+}
+
+int 
+clean_up(ad_context *c){
+	ad_parse_whitespace(c);
+	return ad_parse_next_sep(c);
+} 
+
+int 
 ad_parse_null(ad_context * c, ad_value *v){
 	int rc = 0;
 	EXPECT(c, 'n');
@@ -26,7 +40,7 @@ ad_parse_null(ad_context * c, ad_value *v){
         }
 	c->json += 3;
 	v->type = AD_NULL;
-	return AD_PARSE_OK;
+	return clean_up(c);
 }
 
 int 
@@ -40,7 +54,7 @@ ad_parse_true(ad_context *c, ad_value *v){
         }
         c->json += 3;
         v->type = AD_TRUE;
-	return AD_PARSE_OK;
+	return clean_up(c);
 }
 
 int
@@ -54,8 +68,8 @@ ad_parse_false(ad_context *c, ad_value *v){
         }
         c->json += 4;
         v->type = AD_FALSE;
-        return AD_PARSE_OK;
 
+	return clean_up(c);
 }
 
 int 

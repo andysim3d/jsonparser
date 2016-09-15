@@ -41,10 +41,39 @@ static void test_parse_false(){
 	EXPECT_EQ_INT(AD_FALSE, ad_get_type(&v));
 }
 
+
+static void test_parse_expect_value() {
+	ad_value v;
+	v.type = AD_FALSE;
+	EXPECT_EQ_INT(AD_PARSE_INVALID_VALUE, ad_parse(&v, "nul "));
+	EXPECT_EQ_INT(AD_NULL, ad_get_type(&v));
+
+	v.type = AD_FALSE;
+	EXPECT_EQ_INT(AD_PARSE_INVALID_VALUE, ad_parse(&v, "nul"));
+	EXPECT_EQ_INT(AD_NULL, ad_get_type(&v));
+
+}
+
+static void test_parse_invalid_value() {
+
+}
+
+static void test_parse_root_not_singular() {
+
+        ad_value v;
+        v.type = AD_FALSE;
+        EXPECT_EQ_INT(AD_PARSE_ROOT_NOT_SINGULAR, ad_parse(&v, "null x"));
+        EXPECT_EQ_INT(AD_NULL, ad_get_type(&v));
+
+}
+
 static void test_parse(){
 	test_parse_null();
 	test_parse_false();
 	test_parse_true();
+	test_parse_expect_value();
+	test_parse_invalid_value();
+	test_parse_root_not_singular();
 }
 
 int main(){
