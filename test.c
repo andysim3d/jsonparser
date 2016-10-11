@@ -20,26 +20,45 @@ static int test_pass = 0;
 
 #define EXPECT_EQ_INT(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%d")
 
+#define EXPECT_TRUE(actual) EXPECT_EQ_BASE((actual) != 0, "true", "false", "%s")
+#define EXPECT_FALSE(actual) EXPECT_EQ_BASE((actual) == 0, "false", "true", "%s")
+
 #define EXPECT_EQ_DOUBLE(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%f")
+
+
+#define EXPECT_EQ_STRING(expect, actual, alength)\
+	EXPECT_EQ_BASE(sizeof(expect) - 1 == alength && memcmp(expect, actual, alength) == 0, expect, actual, "%s")
 
 #define TEST_ERROR(error, json)\
 	do {\
 		ad_value v;\
+		ad_init(&v);\
 		v.type = AD_FALSE;\
 		EXPECT_EQ_INT(error, ad_parse(&v, json));\
 		EXPECT_EQ_INT(AD_NULL, ad_get_type(&v));\
+		ad_free(&v);\
 	} while(0)
 
 
 #define TEST_NUMBER(expect, json)\
 	do {\
 		ad_value v;\
+		ad_init(&v);\
 		EXPECT_EQ_INT(AD_PARSE_OK, ad_parse(&v, json));\
 		EXPECT_EQ_INT(AD_NUMBER, ad_get_type(&v));\
 		EXPECT_EQ_DOUBLE(expect, ad_get_number(&v));\
+		ad_free(&v);\
 	} while(0)
 		
-
+#define TEST_STRING(expect, json)\
+	do {\
+		ad_value v;\
+		ad_init(&v);\
+		EXPECT_EQ_INT(AD_PARSE_OK, ad_parse(&v,json));\
+		EXPECT_EQ_INT(AD_STRING, ad_get_type(&v));\
+		EXPECT_EQ_STRING(expect, ad_get_string(&v), ad_get_string_length(&v));\
+		ad_free(&v);\
+	}while(0)
 
 static void test_parse_number(){
 	TEST_NUMBER(0.0, "0");
@@ -138,6 +157,33 @@ static void test_parse_root_not_singular() {
 
 }
 
+static void test_access_boolean() {
+    ad_value v;
+    ad_init(&v);
+    ad_set_string(&v, "a", 1);
+    ad_set_boolean(&v, 1);
+    EXPECT_TRUE(ad_get_boolean(&v));
+    ad_set_boolean(&v, 0);
+    EXPECT_FALSE(ad_get_boolean(&v));
+    ad_free(&v);
+}
+
+static void test_access_number() {
+    ad_value v;
+    ad_init(&v);
+    ad_set_string(&v, "a", 1);
+    ad_set_number(&v, 1234.5);
+    EXPECT_EQ_DOUBLE(1234.5, ad_get_number(&v));
+    ad_free(&v);
+}
+
+
+static void test_parse_string(){
+	TEST_STRING("", "\"\"");
+	TEST_STRING("Hello", "\"Hello\"");
+	TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
+	TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
+}
 static void test_parse(){
 	test_parse_null();
 	test_parse_false();
@@ -147,7 +193,11 @@ static void test_parse(){
 	test_parse_root_not_singular();
 	test_parse_number();
 	test_parse_number_too_big();
+	test_parse_string();
+	test_access_number();
+	test_access_boolean();
 }
+
 
 int main(){
 	test_parse();
